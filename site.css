@@ -1,0 +1,42 @@
+html {
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0;
+    height: 100vh;
+    background-color: #000;
+    color: #ccc;
+}
+
+main {
+    min-height: 10px;
+}
+
+.schedule {
+    position: relative;
+}
+.totals {
+    display: flex;
+    /* position: absolute;
+    top: 10px;
+    left: 0px; */
+}
+.totals label {
+    font-weight: 600;
+}
+.payment-table {
+    position: absolute;
+    top: 0;
+}
