@@ -124,25 +124,25 @@
                         </form>
                         <button type="button" class="btn btn-sm btn-block btn-primary mt-3" data-toggle="modal" data-target="#mdlPayment"><i class="fas fa-plus-circle"></i> Additional Payment</button>
                     </div>
-                    <?php 
-                        if (!empty($sess)) { 
-                            $loanAmount = $initialPrice - $downPayment;
-                            $monthlyTax = empty($annualTax) ? 0 : $annualTax/12;
-                            $monthlyIns = empty($annualIns) ? 0 : $annualIns/12;
-                            // P * r * ( (1 + r)n / [(1 + r)n – 1] ) //P = remaining balance, r = Rate, n = number of payments
-                            $mr = $r/1200;
-                            $pRate = pow((1 + $mr), $term);
-                            $payment = $loanAmount*$mr*(($pRate)/($pRate - 1));
-                            $balance = $loanAmount;
-                            $period = 0;
-                            $totalPrincipal = 0;
-                            $totalInterest = 0;
-                    ?>
                     <div class="p-4 w-100 h-100" style="overflow-y:auto">
                         <div class="text-center">
                             <h1 class="display-4">Mortgage Schedule</h1>
                             <p>Use this page to view a schedule of payments for a home loan or mortgage. Adjust the values to see how they affect the schedule.</p>
                         </div>
+                        <?php 
+                            if (!empty($sess)) { 
+                                $loanAmount = $initialPrice - $downPayment;
+                                $monthlyTax = empty($annualTax) ? 0 : $annualTax/12;
+                                $monthlyIns = empty($annualIns) ? 0 : $annualIns/12;
+                                // P * r * ( (1 + r)n / [(1 + r)n – 1] ) //P = remaining balance, r = Rate, n = number of payments
+                                $mr = $r/1200;
+                                $pRate = pow((1 + $mr), $term);
+                                $payment = $loanAmount*$mr*(($pRate)/($pRate - 1));
+                                $balance = $loanAmount;
+                                $period = 0;
+                                $totalPrincipal = 0;
+                                $totalInterest = 0;
+                        ?>
                         <div id="tblPayments" class="schedule">
                             <table class="table table-striped table-hover table-sm payment-table table-dark" id="tbl">
                                 <thead class="thead-light">
@@ -178,7 +178,7 @@
                                         <td><?= '$'.number_format($balance, 2) ?></td>
                                         <td><?= '$'.number_format($currentPayment, 2) ?></td>
                                         <td><?= '$'.number_format($monthlyPrincipalPayment, 2) ?></td>
-                                        <td <?php if ($addPayment > 0) { ?> class="bg-success" <?php } ?>><?= '$'.number_format($addPayment, 2) ?></td>
+                                        <td id="td_<?= $period; ?>" data-toggle="modal" data-target="#mdlPayment" data-period="<?= $period ?>" data-payment="<?= $addPayment ?>" class="td-payment<?= ($addPayment > 0) ? " bg-success" : ''; ?>"<?= ($addPayment > 0) ? "" : ' style="background-color: rgba(255,255,255,0.1);"'; ?> ><?= '$'.number_format($addPayment, 2) ?></td>
                                         <td><?= '$'.number_format($monthlyInterestPayment, 2) ?></td>
                                         <td><?= '$'.number_format($totalPrincipal, 2) ?></td>
                                         <td><?= '$'.number_format($totalInterest, 2) ?></td>
@@ -191,8 +191,8 @@
                                 </tbody>
                             </table>
                         </div>
+                        <?php } ?>
                     </div>
-                    <?php } ?>
                 </div>
             </div>
             <div class="modal fade" id="mdlPayment" tabindex="-1" role="dialog" aria-labelledby="mdlPaymentLabel" aria-hidden="true">
@@ -206,24 +206,23 @@
                     </div>
                     <form method="post">
                         <div class="modal-body">
-                        <p>Use this to make an additional payment.</p>
-                        <div class="form-group">
-                            <label for="drpAdditionalPaymentPeriod">Period</label>
-                            <select name="ADDITIONAL_PAYMENT_PERIOD" class="form-control">
-                            <?php  for ($i=0; $i < $period; $i ++) { ?>
-                            <?php $periodDate = date_add(new DateTime($startDate), date_interval_create_from_date_string($i . ' Months')); ?>
-                                <option value="<?= $i + 1 ?>"><?= $periodDate->format('m/d/Y'); ?></option>
-                            <?php } ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="txtAdditionalPayment">Additional Payment Amount</label>
-                            <input name="ADDITIONAL_PAYMENT" id="txtAdditionalPayment" class="form-control" type="number" min="0.00" max="<?= !empty($sess) && !empty($loanAmount) ? $loanAmount : ''; ?>">
-                        </div>
+                            <div class="form-group">
+                                <label for="drpAdditionalPaymentPeriod">Period</label>
+                                <select id="drpAdditionalPaymentPeriod" name="ADDITIONAL_PAYMENT_PERIOD" class="form-control">
+                                <?php  for ($i=0; $i < $period; $i ++) { ?>
+                                <?php $periodDate = date_add(new DateTime($startDate), date_interval_create_from_date_string($i . ' Months')); ?>
+                                    <option value="<?= $i + 1 ?>"><?= $periodDate->format('m/d/Y'); ?></option>
+                                <?php } ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="txtAdditionalPayment">Additional Payment Amount</label>
+                                <input name="ADDITIONAL_PAYMENT" id="txtAdditionalPayment" class="form-control" type="number" min="0.00" step="0.01" max="<?= !empty($sess) && !empty($loanAmount) ? $loanAmount : ''; ?>">
+                            </div>
                         </div>
                         <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button name="modal" type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button name="modal" type="submit" class="btn btn-primary">Save changes</button>
                         </div>
                     </form>
                     </div>
@@ -258,5 +257,28 @@
         <?php } ?>
         <script src="/lib/jquery-3.4.1/jquery.min.js"></script>
         <script src="/lib/bootstrap-4.4.1-dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            $('#mdlPayment').on('shown.bs.modal', function(e) {
+                var btn = $(e.relatedTarget);
+                var d = btn.data('period') ? btn.data('period') : 1;
+                var p = btn.data('payment') > 0 ? btn.data('payment') : '';
+                $('#drpAdditionalPaymentPeriod').val(d);
+                
+                if (btn.data('period')) {
+                    $('#txtAdditionalPayment').focus();
+                } else {
+                    p = $('#td_1').data('payment') > 0 ? $('#td_1').data('payment') : '';
+                    $('#drpAdditionalPaymentPeriod').focus();
+                }
+                $('#txtAdditionalPayment').val(p);
+            });
+
+            $('#drpAdditionalPaymentPeriod').change(function () {
+                var d = $('#drpAdditionalPaymentPeriod').val();
+                var p = p = $('#td_' + d).data('payment') > 0 ? $('#td_' + d).data('payment') : '';
+                $('#txtAdditionalPayment').val(p);
+                $('#txtAdditionalPayment').focus();
+            });
+        </script>
     </body>
 </html>
