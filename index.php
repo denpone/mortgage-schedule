@@ -27,7 +27,7 @@
     $term = !empty($sess) ? (int)$sess['term'] : '';
     $annualTax = !empty($sess) ? (double)$sess['tax'] : '';
     $annualIns = !empty($sess) ? (double)$sess['ins'] : '';
-    $startDate = !empty($sess) ? (double)$sess['startDate'] : '';
+    $startDate = !empty($sess) ? date('Y-m-d', strtotime($sess['startDate'])) : date('Y-m-d');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +61,7 @@
                             <div class="d-flex flex-column" style="max-width: 300px;">
                                 <div class="form-group">
                                     <label for="txtPurchasePrice">Purchase Price</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">$</span>
                                         </div>
@@ -70,7 +70,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="txtDownPayment">Down Payment</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">$</span>
                                         </div>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="txtInterestRate">Interest Rate</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <input type="number" name="INTEREST_RATE" id="txtInterestRate" class="form-control" min="0.00" max="50.00" step="0.01" required="required" value="<?= $r ?>">
                                         <div class="input-group-append">
                                             <span class="input-group-text">%</span>
@@ -88,13 +88,13 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="txtTermMonths">Term Months</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <input type="number" name="TERM_MONTHS" id="txtTermMonths" class="form-control" min="0" max="600" step="1" required="required" value="<?= $term ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="txtAnnualTaxes">Annual Taxes</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">$</span>
                                         </div>
@@ -103,7 +103,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="txtAnnualInsurance">Annual Insurance</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">$</span>
                                         </div>
@@ -112,11 +112,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="txtStartDate">Loan Start Date</label>
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                                         </div>
-                                        <input type="date" name="START_DATE" id="txtStartDate" class="form-control" value="<?= date('Y-m-d', strtotime($startDate)); ?>">
+                                        <input type="date" name="START_DATE" id="txtStartDate" class="form-control" value="<?= $startDate; ?>">
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +137,6 @@
                             $period = 0;
                             $totalPrincipal = 0;
                             $totalInterest = 0;
-                            $fmt = numfmt_create('en_US', NumberFormatter::CURRENCY);
                     ?>
                     <div class="p-4 w-100 h-100" style="overflow-y:auto">
                         <div class="text-center">
@@ -171,17 +170,19 @@
                                         $totalInterest += $monthlyInterestPayment;
                                         $totalPrincipal += $monthlyPrincipalPayment;
                                         $endingBalance = $balance - $monthlyPrincipalPayment;
+                                        setlocale(LC_MONETARY, 'en_US');
+                                        $fmt = '%n';
                                     ?>
                                     <tr>
                                         <td><?= $periodDate->format('m/d/Y'); ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $balance, 'USD') ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $currentPayment, 'USD') ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $monthlyPrincipalPayment, 'USD') ?></td>
-                                        <td <?php if ($addPayment > 0) { ?> class="bg-success" <?php } ?>><?= numfmt_format_currency($fmt, $addPayment, 'USD') ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $monthlyInterestPayment, 'USD') ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $totalPrincipal, 'USD') ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $totalInterest, 'USD') ?></td>
-                                        <td><?= numfmt_format_currency($fmt, $endingBalance, 'USD') ?></td>
+                                        <td><?= '$'.number_format($balance, 2) ?></td>
+                                        <td><?= '$'.number_format($currentPayment, 2) ?></td>
+                                        <td><?= '$'.number_format($monthlyPrincipalPayment, 2) ?></td>
+                                        <td <?php if ($addPayment > 0) { ?> class="bg-success" <?php } ?>><?= '$'.number_format($addPayment, 2) ?></td>
+                                        <td><?= '$'.number_format($monthlyInterestPayment, 2) ?></td>
+                                        <td><?= '$'.number_format($totalPrincipal, 2) ?></td>
+                                        <td><?= '$'.number_format($totalInterest, 2) ?></td>
+                                        <td><?= '$'.number_format($endingBalance, 2) ?></td>
                                     </tr>
                                     <?php
                                         $balance = $endingBalance;
@@ -234,15 +235,15 @@
             <div class="totals w-100">
                 <div class="col text-center">
                     <label>Loan Amount</label>
-                    <p><?= numfmt_format_currency($fmt, $loanAmount, 'USD'); ?></p>
+                    <p><?= '$'.number_format($loanAmount, 2); ?></p>
                 </div>
                 <div class="col text-center">
                     <label>Monthly Payment</label>
-                    <p><?= numfmt_format_currency($fmt, $payment, 'USD'); ?></p>
+                    <p><?= '$'.number_format($payment, 2); ?></p>
                 </div>
                 <div class="col text-center">
                     <label>Cost of Loan</label>
-                    <p><?= numfmt_format_currency($fmt, $totalInterest, 'USD'); ?></p>
+                    <p><?= '$'.number_format($totalInterest, 2); ?></p>
                 </div>
                 <div class="col text-center">
                     <label>Last Payment Date</label>
