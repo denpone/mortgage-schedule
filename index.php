@@ -38,7 +38,7 @@
         <meta name="description" content="">
         <meta name="author" content="Dennis O'Neill">
 
-        <title>Mortgage Schedule</title>
+        <title>Mortgage Schedule | PHP</title>
 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand&display=swap">
         <link rel="stylesheet" href="/lib/fontawesome-free-5.12.0-web/css/all.min.css">
